@@ -1,18 +1,18 @@
 /*
 HuangSu
 */
-
-#include <QApplication>
+#include <stdio.h>
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
 using namespace std;
-#include "maindialog.h"
 #include "packet_cap.h"
 #include "inodeport.h"
 #include "process.h"
-#include "maindialog.h"
+#include "cui.h"
+#include "mempool.h"
+//#include "maindialog.h"
 
 static int stop = 0;
 
@@ -24,10 +24,17 @@ static void moniter_process(int signo)
 	class pcap& Packet_instance = pcap::GetInstance();
 	list_packet = Packet_instance.get_packet_list();
 	Packet_instance.set_packet_list(NULL);
+
+	class Cui& cui_instance = Cui::GetInstance();	
+	cui_instance.show_title();
+
+
+	if(!stop)
+			alarm(1);
+	else
+		exit(0);
 	/*if no packet, no work to do, set alarm and return ,  otherwise, flush packet into process*/
 	if(NULL==list_packet){
-		if(!stop)
-			alarm(1);
 		return ;
 	}
 
@@ -41,11 +48,11 @@ static void moniter_process(int signo)
 	Process_manager.reflush_packet( list_packet );       
 
 	/*flush window*/
-	maindialog &win = maindialog::GetInstance();
+/*	maindialog &win = maindialog::GetInstance();
 	win.reflush( (const vector<struct process*>&)Process_manager.get_process_vec() );
+*/
 	
-	if(!stop)
-		alarm(1);
+	cui_instance.show( (const vector<struct process*>&)Process_manager.get_process_vec() );
 }
 
 /*thread handle for capture packet*/
@@ -63,7 +70,10 @@ static void* packet_handle(void* args)
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc,argv);
+ //   QApplication app(argc,argv);
+
+	class Cui&  cui_instance = Cui::GetInstance();	
+	cui_instance.show_title();
 	
 	if( signal(SIGALRM,moniter_process) == SIG_ERR )
 	{
@@ -72,14 +82,19 @@ int main(int argc, char *argv[])
 	alarm(1);	
 
 	int err;
+	void *perr = &err;
 	pthread_t pcap_thread;
 	err =  pthread_create(&pcap_thread, NULL, packet_handle, NULL);
 	if(0!=err)
 		exit(-1);
-
-	maindialog &win = maindialog::GetInstance();
-    win.show();
-	return app.exec();
+	
+	if((char)getchar() == 'q')
+		exit(0);
+	pthread_join(pcap_thread, &perr);
+	//	maindialog &win = maindialog::GetInstance();
+  //  win.show();
+//	return app.exec();
+	return 0;
 }
 
 

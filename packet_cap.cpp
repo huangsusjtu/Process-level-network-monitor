@@ -2,6 +2,10 @@
 
 const size_t SnapLen = max(sizeof(ppp_header),sizeof(ethhdr) ) + max(sizeof(ip6_hdr),sizeof(ip)) + max(sizeof(tcphdr),sizeof(udphdr));
 
+mempool<struct packet>& packet::pool = mempool<struct packet>::GetInstance();
+
+
+
 pcap::pcap()
 {
 	pthread_mutex_init(&lock_packet,NULL);

@@ -25,6 +25,8 @@
 #include<vector>
 #include<list>
 using namespace std;
+#include "mempool.h"
+
 
 /*callback hander for packet*/
 typedef void (*callback_fun)(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet) ;
@@ -62,7 +64,20 @@ struct packet{
 
     packet():next(NULL){}
     packet(struct packet* n,u_int16_t l, u_int16_t lp, u_int16_t rp ,enum DIRECTION d):next(n),len(l),local_port(lp),remote_port(rp),direct(d){}
+
+
+	/*void* operator new(size_t size)
+	{
+		return pool.alloc();
+	}
+
+	void operator delete(void *p, size_t size)
+	{
+		pool.free(p);
+	}*/
+	static mempool<struct packet> &pool;
 };
+
 
 /*handle in libcap*/
 struct HANDLE{
@@ -96,7 +111,7 @@ public :
 	u_int32_t lenout;
 private:
    	pcap();
-    virtual ~pcap();
+    	virtual ~pcap();
 	pcap& operator=(pcap& );
 	pcap(const pcap& );
 

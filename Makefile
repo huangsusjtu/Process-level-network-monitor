@@ -2,15 +2,17 @@ CC = g++
 LFLAGS        = -g -Wall -Wextra
 INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++ -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I.
 LINK          = g++
-LIBS          = -L/usr/lib/i386-linux-gnu  -L/usr/local/lib  -lpcap -lQtGui -lQtCore -lpthread 
+#LIBS          = -L/usr/lib/i386-linux-gnu  -L/usr/local/lib  -lpcap -lQtGui -lQtCore -lpthread 
+LIBS          = -L/usr/lib/i386-linux-gnu  -L/usr/local/lib  -lpcap -lpthread -lncurses 
 
-OBJ           =  packet.o inodeport.o main.o process.o maindialog.o
+OBJ           =  packet.o inodeport.o main.o process.o cui.o 
+#maindialog.o
 TERGET        =  all
 
 all: $(OBJ)
 	$(LINK) -o all $(OBJ) $(LIBS)  $(LFLAGS)
 
-packet.o: packet_cap.cpp  packet_cap.h
+packet.o: packet_cap.cpp  packet_cap.h mempool.h
 	$(CC) -c packet_cap.cpp -o packet.o $(LFLAGS)
 
 inodeport.o: inodeport.cpp inodeport.h
@@ -22,8 +24,10 @@ main.o:main.cpp
 process.o: process.cpp process.h
 	$(CC) -c process.cpp $(LFLAGS)
 
-maindialog.o: maindialog.cpp maindialog.h
-	$(CC) -c maindialog.cpp $(LFLAGS) $(INCPATH)
+#maindialog.o: maindialog.cpp maindialog.h
+#	$(CC) -c maindialog.cpp $(LFLAGS) $(INCPATH)
+cui.o : cui.h cui.cpp
+	$(CC) -c cui.cpp $(LFLAGS) $(INCPATH)
 
 clean:
 	rm -f $(OBJ) $(TERGET)

@@ -96,12 +96,13 @@ char* process_manager::get_process_name(char * pid) {
 	int filenamelen = prefix + strlen(pid) + 1; 
 	int bufsize = 80;
 	char buffer[NAME_MAX+1];
-	char *filename = (char *) malloc (filenamelen);
+	//char *filename = (char *) malloc (filenamelen);
+	char filename[2048];
 	snprintf (filename, filenamelen, "/proc/%s/cmdline", pid);
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) {
 		//printf ( "Error opening %s\n", filename);
-		free (filename);
+		//free (filename);
 		exit(3);
 		return NULL;
 	}
@@ -110,7 +111,7 @@ char* process_manager::get_process_name(char * pid) {
 		//std::cout << "Error closing file: "<< std::endl;
 		exit(34);
 	}
-	free (filename);
+//	free (filename);
 	if (length < bufsize - 1)
 		buffer[length]='\0';
 
@@ -122,7 +123,8 @@ char* process_manager::get_process_name(char * pid) {
 /*collect information of one process by read /proc/pid/fd/*/
 void process_manager::get_info_for_pid(char * pid, class inodeport& inodeport) {
 	size_t dirlen = 10 + strlen(pid);
-	char * dirname = (char *) malloc (dirlen * sizeof(char));
+	//char * dirname = (char *) malloc (dirlen * sizeof(char));
+	char dirname[2048];
 	snprintf(dirname, dirlen, "/proc/%s/fd", pid);
 
 	//std::cout << "Getting info for pid " << pid << std::endl;
@@ -132,7 +134,7 @@ void process_manager::get_info_for_pid(char * pid, class inodeport& inodeport) {
 	if (!dir)
 	{
 		//std::cout << "Couldn't open dir " << dirname << ": "<< "\n";
-		free (dirname);
+		//free (dirname);
 		return;
 	}
 
@@ -164,7 +166,7 @@ void process_manager::get_info_for_pid(char * pid, class inodeport& inodeport) {
 		free (fromname);
 	}
 	closedir(dir);
-	free (dirname);
+	//free (dirname);
 }
 
 /*read information in /proc/pid/fd/.  ,thus we know whether this process has created socket and the inode of socket*/
